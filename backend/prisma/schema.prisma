@@ -31,12 +31,12 @@ model Role {
 }
 
 model Doctor {
-  id               Int              @id @default(autoincrement())
   specialization   String
   bio              String
   userId           Int              @unique
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   doctor_schedules DoctorSchedule[]
+  appointments     Appointment[]
 }
 
 model DoctorSchedule {
@@ -45,7 +45,7 @@ model DoctorSchedule {
   start_date         DateTime
   end_date           DateTime
   daily_availability DailyAvailability[]
-  doctor             Doctor              @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  doctor             Doctor              @relation(fields: [doctorId], references: [userId], onDelete: Cascade)
 }
 
 model DailyAvailability {
@@ -69,6 +69,7 @@ model Appointment {
   description  String?
   created_at   DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
+  doctor       Doctor             @relation(fields: [doctorId], references: [userId], onDelete: Cascade)
 }
 
 enum Appointment_Status {
