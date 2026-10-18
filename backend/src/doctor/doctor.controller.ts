@@ -8,6 +8,7 @@ import { GetVisitsDto } from './dto/GetVisits.dto';
 import { AppointmentStrategyContext } from 'src/Pattern/GetVisits/AppointmentStrategyContext';
 import { CreateDoctorScheduleDto } from './dto/CreateDoctorSchedule.dto';
 import { EditDailyAvailabilityDto } from './dto/EditDailyAvability.dto';
+import { Throttle } from '@nestjs/throttler';
 
 
 
@@ -19,6 +20,7 @@ export class DoctorController {
   // get all doctors for admin
  @Roles("admin")
  @UseGuards(RolesGuard)
+ @Throttle({ Search: { limit: 30, ttl: 60000 } })
  @Get("Get-Doctors")
  @HttpCode(HttpStatus.OK)
  async GetAllDoctors(@Query() dto:GetDoctorsDto){
@@ -28,6 +30,7 @@ export class DoctorController {
  // get all visistors for doctor and admin 
  @Roles("admin","doctor")
  @UseGuards(RolesGuard)
+ @Throttle({ Search: { limit: 30, ttl: 60000 } })
  @Get("Doctor-recourds")
  @HttpCode(HttpStatus.OK)
  async GetVisits(@Query() dto:GetVisitsDto,@Req() req: Request){

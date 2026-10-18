@@ -3,6 +3,7 @@ import { BrowseDoctorsDto } from './dto/BrowseDoctors.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { Prisma } from '@prisma/client';
 import { CreateAppointmentDto } from './dto/CreateAppointment.dto';
+import { GetPatientRecordsDto } from './dto/GetPatientRecourds.dto';
 
 
 @Injectable()
@@ -96,7 +97,7 @@ export class PatientService {
 
                 doctor_schedules: {
                   include: {
-                  daily_availability: {
+                    daily_availability: {
                       where: { date: todayDate, status: true },
                     },
                   },
@@ -123,11 +124,11 @@ export class PatientService {
       throw new InternalServerErrorException('An error occurred while fetching available doctors');
     }
   }
-async getDoctorDetails(doctorId: number) {
+  async getDoctorDetails(doctorId: number) {
     try {
       const todayDate = new Date().toISOString().split('T')[0];
 
-      
+
       const doctor = await this.database.user.findFirst({
         where: {
           id: doctorId,
@@ -156,12 +157,12 @@ async getDoctorDetails(doctorId: number) {
         throw new NotFoundException('Doctor not found or inactive');
       }
 
-      
-     
+
+
       const schedules = (doctor.doctor?.doctor_schedules || []) as any[];
-      
+
       const dailyAvailability = schedules
-        .flatMap((schedule) => schedule.daily_availability || []) 
+        .flatMap((schedule) => schedule.daily_availability || [])
         .find((avail) => avail && avail.date === todayDate);
 
       if (!dailyAvailability) {
@@ -180,7 +181,7 @@ async getDoctorDetails(doctorId: number) {
         };
       }
 
-      
+
       const bookedAppointments = await this.database.appointment.findMany({
         where: {
           doctorId: doctorId,
@@ -189,11 +190,11 @@ async getDoctorDetails(doctorId: number) {
         },
         select: {
           from_time: true,
-          to_time: true, 
+          to_time: true,
         },
       });
 
-      
+
       const formattedBookings = bookedAppointments.map((app) => ({
         from_time: app.from_time,
         end_time: app.to_time,
@@ -228,12 +229,62 @@ async getDoctorDetails(doctorId: number) {
       throw new InternalServerErrorException('An error occurred while fetching doctor details');
     }
   }
-async createAppointment(dto: CreateAppointmentDto) {
+  async getPatientRecords(patientCode: string, dto:GetPatientRecordsDto) {
+    const {page=1,limit=5}=dto;
+    const skip = (page - 1) * limit;
+
     try {
-      const todayDate = new Date().toISOString().split('T')[0];  
+      const where: Prisma.AppointmentWhereInput = {
+        patient_code: patientCode,
+      };
+
+      const [records, totalCount] = await Promise.all([
+        this.database.appointment.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { date: 'desc' },
+          include: {
+            doctor: {
+              select: {
+                specialization: true,
+                user: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
+        this.database.appointment.count({ where }),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / limit);
+
+      return {
+        data: records,
+        totalCount,
+        currentPage: page,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      };
+
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      console.error('ERROR IN GET PATIENT RECORDS:', error);
+      throw new InternalServerErrorException('An error occurred while fetching patient records');
+    }
+  }
+  async createAppointment(dto: CreateAppointmentDto) {
+    try {
+      const todayDate = new Date().toISOString().split('T')[0];
       const patientCode = `PAT-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      
+
       // check if doctor exist
       const doctorUser = await this.database.user.findFirst({
         where: {
@@ -263,7 +314,7 @@ async createAppointment(dto: CreateAppointmentDto) {
         throw new NotFoundException('Doctor not found or inactive');
       }
 
-      
+
       const schedules = (doctorUser.doctor.doctor_schedules || []) as any[];
       const dailyAvailability = schedules
         .flatMap((schedule) => schedule.daily_availability || [])
@@ -273,7 +324,7 @@ async createAppointment(dto: CreateAppointmentDto) {
         throw new BadRequestException('The doctor has no active availability or working hours for today');
       }
 
-      
+
 
       // check if the time in dalilavabilty for dotor
       if (dto.from_time < dailyAvailability.start_time || dto.to_time > dailyAvailability.end_time) {
@@ -309,7 +360,7 @@ async createAppointment(dto: CreateAppointmentDto) {
         throw new ConflictException('This time slot is already booked or overlaps with an existing appointment');
       }
 
-      
+
       const newAppointment = await this.database.appointment.create({
         data: {
           doctorId: dto.doctorId,
@@ -331,7 +382,7 @@ async createAppointment(dto: CreateAppointmentDto) {
       if (error instanceof HttpException) {
         throw error;
       }
-  
+
       throw new InternalServerErrorException('An error occurred while creating the appointment');
     }
   }
