@@ -17,6 +17,7 @@ export class AuthService {
       where: { email }, 
       include: { role: true } 
     });
+    
 
     if (!user) {
       throw new UnauthorizedException("Email or password not correct");
@@ -117,6 +118,60 @@ export class AuthService {
     }
     
     throw new InternalServerErrorException("An unexpected error occurred while creating the doctor account");
+  }
+}
+async getMe(userId: number, RoleName: string) {
+  try {
+    let user;
+
+    if (RoleName === "admin") {
+      user = await this.database.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          phone: true,
+          image: true,
+          role: {
+            select: { roleName: true }
+          }
+        }
+      });
+    } else  {
+      user = await this.database.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          phone: true,
+          image: true,
+          role: {
+            select: { roleName: true }
+          },
+          doctor: {
+            select: {
+              specialization: true,
+              bio: true
+            }
+          }
+        }
+      });
+    } 
+    
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return user;
+
+  } catch (error) {
+    
+      if(error instanceof HttpException){
+        throw error;
+      }
+      throw new InternalServerErrorException("An unexpected error occurred Please try again later")
   }
 }
 
