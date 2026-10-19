@@ -35,19 +35,14 @@ export default function Hero() {
 
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto mb-12">
                             <Link
-                                href="/appointment"
+                                 href="/Doctors" 
                                 className="bg-brand-primary text-white px-8 py-4 rounded-xl font-bold text-base shadow-lg shadow-sky-500/25 hover:bg-sky-700 transition text-center flex items-center justify-center gap-2"
                             >
                                 Book Appointment
                                 <ArrowRight className="w-5 h-5" />
                             </Link>
 
-                            <Link
-                                href="/services"
-                                className="bg-card-custom text-brand-dark border border-subtle px-8 py-4 rounded-xl font-bold text-base hover:bg-slate-50 transition text-center shadow-xs"
-                            >
-                                Our Services
-                            </Link>
+                            
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 border-t border-subtle w-full" data-aos="fade-up" data-aos-delay="200">

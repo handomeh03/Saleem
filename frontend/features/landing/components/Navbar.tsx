@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Loader2 } from 'lucide-react';
 import { useAuth } from '@/store/context/userContext';
 
 const NAV_LINKS = [
   { name: 'Home', href: '#' },
   { name: 'About Us', href: '#aboutus' },
   { name: 'Our Services', href: '#service' },
-  { name: 'Doctors', href: '#doctors' },
+  { name: 'Doctors', href: 'Doctors' },
   { name: 'Contact', href: '#footer' },
 ];
 
@@ -17,7 +17,8 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('Home');
 
-  const {user}=useAuth();
+  
+  const { user, isLoading, logout } = useAuth();
 
   const handleScrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, name: string, href: string) => {
     setActiveLink(name);
@@ -39,6 +40,9 @@ export default function Navbar() {
     }
   };
 
+  
+  const dashboardHref = user?.role?.roleName === "admin" ? "/admin-dashboard/doctors" : "/DoctorDashboard/doctor-recourds";
+
   return (
     <header className="sticky top-0 z-50 bg-card-custom border-b border-subtle shadow-xs">
       {/* Top Bar */}
@@ -51,12 +55,17 @@ export default function Navbar() {
           <span className="text-slate-300">Open 7 Days a Week</span>
         </div>
         <div className="flex items-center gap-4 text-slate-300">
-          <Link href="/patient-portal" className="hover:text-white transition">Patient Portal</Link>
-          {user &&(<>
-          <span>|</span>
-          <Link href="/patient-portal" className="hover:text-white transition">dashboard</Link>
-          </>)
-          }
+          <Link href="/patient" className="hover:text-white transition">Patient Portal</Link>
+          
+          {isLoading ? (
+            <span className="text-xs text-slate-400">Loading...</span>
+          ) : user ? (
+            <>
+              <span>|</span>
+              <Link href={dashboardHref} className="hover:text-white transition">Dashboard</Link>
+            </>
+          ) : null}
+
           <span>|</span>
           <Link href="#footer" onClick={(e) => handleScrollToSection(e, 'Contact', '#footer')} className="hover:text-white transition">Contact Us</Link>
         </div>
@@ -97,20 +106,35 @@ export default function Navbar() {
           })}
         </nav>
 
+        {/* Desktop Actions */}
         <div className="hidden lg:flex items-center gap-4">  
           <Link 
-            href="/appointment" 
+            href="/Doctors" 
             className="bg-brand-primary text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-md shadow-sky-500/20 hover:bg-sky-700 transition"
           >
             Book Appointment
           </Link>
-          {!user &&   <Link 
-            href="/login" 
-            className="bg-brand-primary text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-md shadow-sky-500/20 hover:bg-sky-700 transition"
-          >
-            Login
-          </Link>}
-         
+
+          
+          {isLoading ? (
+            <div className="w-24 h-10 flex items-center justify-center bg-brand-primary/10 rounded-xl">
+              <Loader2 className="w-5 h-5 text-brand-primary animate-spin" />
+            </div>
+          ) : user ? (
+            <button 
+              onClick={logout}
+              className="bg-red-500 text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-md shadow-red-500/20 hover:bg-red-600 transition cursor-pointer"
+            >
+              Logout
+            </button>
+          ) : (
+            <Link 
+              href="/login" 
+              className="bg-brand-primary text-white px-5 py-2.5 rounded-xl font-medium text-sm shadow-md shadow-sky-500/20 hover:bg-sky-700 transition"
+            >
+              Login
+            </Link>
+          )}
         </div>
 
         {/* Mobile Hamburger Button */}
@@ -151,13 +175,31 @@ export default function Navbar() {
           >
             Book Appointment
           </Link>
-          <Link 
-            href="/login" 
-            onClick={() => setIsOpen(false)}
-            className="mt-4 bg-brand-primary text-white text-center py-3 rounded-xl font-medium shadow-md shadow-sky-500/20"
-          >
-            Login
-          </Link>
+
+          
+          {isLoading ? (
+            <div className="mt-4 py-3 flex items-center justify-center bg-brand-primary/10 rounded-xl">
+              <Loader2 className="w-5 h-5 text-brand-primary animate-spin" />
+            </div>
+          ) : user ? (
+            <button 
+              onClick={() => {
+                setIsOpen(false);
+                logout();
+              }}
+              className="mt-4 bg-red-500 text-white text-center py-3 rounded-xl font-medium shadow-md shadow-red-500/20 cursor-pointer"
+            >
+              Logout
+            </button>
+          ) : (
+            <Link 
+              href="/login" 
+              onClick={() => setIsOpen(false)}
+              className="mt-4 bg-brand-primary text-white text-center py-3 rounded-xl font-medium shadow-md shadow-sky-500/20"
+            >
+              Login
+            </Link>
+          )}
         </div>
       )}
     </header>
