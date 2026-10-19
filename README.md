@@ -224,7 +224,7 @@ SaleemCare aims to simplify clinic operations by providing:
 
 Full Stack Software Engineer
 
-- GitHub: [Add your GitHub profile](https://github.com/handomeh03)
+- GitHub: (https://github.com/handomeh03)
 
 ---
 
