@@ -28,9 +28,9 @@ export class PatientController {
   @IsPublic()
   @HttpCode(HttpStatus.OK)
   @Throttle({ Search: { limit: 30, ttl: 60000 } })
-  @Get("patient-recourds/:patientCode")
-  async GetPatientRecourds(@Param("patientCode") patientCode: string,@Query() dto:GetPatientRecordsDto){
-    return await this.patientService.getPatientRecords(patientCode,dto);
+  @Get("patient-recourd/:patientCode")
+  async GetPatientRecourds(@Param("patientCode") patientCode: string){
+    return await this.patientService.getPatientRecordByCode(patientCode);
   }
 
 

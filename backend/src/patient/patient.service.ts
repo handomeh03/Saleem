@@ -229,56 +229,41 @@ export class PatientService {
       throw new InternalServerErrorException('An error occurred while fetching doctor details');
     }
   }
-  async getPatientRecords(patientCode: string, dto:GetPatientRecordsDto) {
-    const {page=1,limit=5}=dto;
-    const skip = (page - 1) * limit;
-
-    try {
-      const where: Prisma.AppointmentWhereInput = {
-        patient_code: patientCode,
-      };
-
-      const [records, totalCount] = await Promise.all([
-        this.database.appointment.findMany({
-          where,
-          skip,
-          take: limit,
-          orderBy: { date: 'desc' },
-          include: {
-            doctor: {
+  async getPatientRecordByCode(patientCode: string) {
+  try {
+    const record = await this.database.appointment.findFirst({
+      where: { 
+        patient_code: patientCode.trim() 
+      },
+      orderBy: { date: 'desc' },
+      include: {
+        doctor: {
+          select: {
+            specialization: true,
+            user: {
               select: {
-                specialization: true,
-                user: {
-                  select: {
-                    name: true,
-                  },
-                },
+                name: true,
               },
             },
           },
-        }),
-        this.database.appointment.count({ where }),
-      ]);
+        },
+      },
+    });
 
-      const totalPages = Math.ceil(totalCount / limit);
-
-      return {
-        data: records,
-        totalCount,
-        currentPage: page,
-        totalPages,
-        hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1,
-      };
-
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      console.error('ERROR IN GET PATIENT RECORDS:', error);
-      throw new InternalServerErrorException('An error occurred while fetching patient records');
+    if (!record) {
+      throw new NotFoundException(`Patient record with code ${patientCode} not found`);
     }
+
+    return record;
+
+  } catch (error) {
+    if (error instanceof HttpException) {
+      throw error;
+    }
+    console.error('ERROR IN GET PATIENT RECORD:', error);
+    throw new InternalServerErrorException('An error occurred while fetching the patient record');
   }
+}
   async createAppointment(dto: CreateAppointmentDto) {
     try {
       const todayDate = new Date().toISOString().split('T')[0];
