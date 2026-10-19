@@ -30,6 +30,8 @@ export function useGetPatientRecord(patientCode: string) {
             const res = await api.get(`patient/patient-recourd/${patientCode.trim()}`);
             return res.data; 
         },
+         staleTime: 60000,
+        placeholderData: (previousData) => previousData,
         enabled: false, 
         retry: false,
     });

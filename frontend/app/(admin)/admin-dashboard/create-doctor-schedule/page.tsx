@@ -1,29 +1,20 @@
 'use client';
 
-import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import api from '@/config/axoisConfig';
-import { toast } from 'sonner';
 import { Calendar, Loader2, CalendarPlus } from 'lucide-react';
 import { useGetDoctors } from '@/features/Doctor/hooks/useGetDoctors';
 import { DoctorSelectDropdown } from '@/features/Doctor/components/DoctorSelectDropdown';
+import { ScheduleFormValues, scheduleSchema } from '@/features/Doctor/Types/CreateScheduleType';
+import { useCreateDoctorSchedule } from '@/features/Doctor/hooks/useCreateDoctorSchedule';
 
 
-const scheduleSchema = z.object({
-    doctorId: z.string().min(1, 'Please select a doctor'),
-    start_date: z.string().min(1, 'Start date is required'),
-    end_date: z.string().min(1, 'End date is required'),
-});
 
-type ScheduleFormValues = z.infer<typeof scheduleSchema>;
 
 export default function CreateDoctorSchedulePage() {
     const router = useRouter();
-    const queryClient = useQueryClient();
+    
     
     const { data: doctorsData, isLoading: isLoadingDoctors } = useGetDoctors({
         page: 1,
@@ -42,21 +33,7 @@ export default function CreateDoctorSchedulePage() {
         resolver: zodResolver(scheduleSchema),
     });
 
-    const createScheduleMutation = useMutation({
-        mutationFn: async (data: { doctorId: number; payload: { start_date: string; end_date: string } }) => {
-            const res = await api.post(`doctor/Create-Schedule/${data.doctorId}`, data.payload);
-            return res.data;
-        },
-        onSuccess: () => {
-            toast.success('Doctor schedule created successfully!');
-            queryClient.invalidateQueries({ queryKey: ['admin-doctors'] });
-            router.push('/admin-dashboard/doctors');
-        },
-        onError: (error: any) => {
-            const message = error?.response?.data?.message || 'Failed to create schedule';
-            toast.error(Array.isArray(message) ? message[0] : message);
-        },
-    });
+    const createScheduleMutation = useCreateDoctorSchedule();
 
     const onSubmit = (data: ScheduleFormValues) => {
         createScheduleMutation.mutate({

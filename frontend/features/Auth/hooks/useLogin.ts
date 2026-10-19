@@ -30,7 +30,7 @@ export function useLogin() {
                 console.error("Failed to fetch user profile after login:", error);
             }
 
-             const redirectPath = data?.role=="admin"?"/":"/";
+             const redirectPath = data?.role=="admin"?"/admin-dashboard/doctors":"/DoctorDashboard/doctor-recourds";
              router.push(redirectPath);
             
         },

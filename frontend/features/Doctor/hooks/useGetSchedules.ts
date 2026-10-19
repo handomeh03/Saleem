@@ -55,5 +55,7 @@ export function useGetSchedules({ page, searchQuery, limit = 5 }: UseGetSchedule
             });
             return res.data;
         },
+         staleTime: 60000,
+        placeholderData: (previousData) => previousData,
     });
 }

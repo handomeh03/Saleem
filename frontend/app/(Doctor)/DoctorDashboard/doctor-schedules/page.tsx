@@ -3,18 +3,17 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, Calendar, ChevronDown, Stethoscope, Mail, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-import api from '@/config/axoisConfig';
 import Loader from '@/components/Loader';
 import { Pagination } from '@/components/Pagenation';
 import { DailyAvailability, useGetSchedules } from '@/features/Doctor/hooks/useGetSchedules';
+import { useToggleAvailabilityStatus } from '@/features/Doctor/hooks/useToggleAvailabilityStatus';
 
 
 export default function AdminSchedulesPage() {
     const [page, setPage] = useState<number>(1);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [openAccordions, setOpenAccordions] = useState<Record<number, boolean>>({});
-    const queryClient = useQueryClient();
+    
 
     
     const { data: responseData, isLoading, isError } = useGetSchedules({
@@ -30,23 +29,7 @@ export default function AdminSchedulesPage() {
     const hasPreviousPage = responseData?.hasPreviousPage || false;
 
     
-    const toggleStatusMutation = useMutation({
-        mutationFn: async ({ availabilityId, currentStatus }: { availabilityId: number; currentStatus: boolean }) => {
-            
-            const res = await api.patch(`doctor/Schedule/edit-dailyAvaibilty/${availabilityId}`, {
-                status: !currentStatus,
-            });
-            return res.data;
-        },
-        onSuccess: () => {
-            toast.success('Availability status updated successfully');
-            queryClient.invalidateQueries({ queryKey: ['schedules'] });
-        },
-        onError: (error: any) => {
-            const message = error?.response?.data?.message || 'Failed to update status';
-            toast.error(message);
-        },
-    });
+    const toggleStatusMutation = useToggleAvailabilityStatus();
 
     
     const toggleAccordion = (scheduleId: number) => {
