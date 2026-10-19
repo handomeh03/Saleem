@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react'; // استخدام أيقونة دوران ناعمة وممتازة من Lucide
+import { Loader2 } from 'lucide-react'; 
 
 interface LoaderProps {
     size?: 'sm' | 'md' | 'lg';

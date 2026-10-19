@@ -7,9 +7,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoginFormData, loginSchema } from '@/features/Auth/types/loginType';
 import { useLogin } from '@/features/Auth/hooks/useLogin';
+import { useEffect } from 'react';
+import { useAuth } from '@/store/context/userContext';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+  
   const {
     register,
     handleSubmit,
@@ -18,12 +23,18 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema)
   });
 
-  const {login,isPending,isError,error}=useLogin();
+  const { login, isPending, isError, error } = useLogin();
 
- async function onSubmit(data: LoginFormData){
-    
+  async function onSubmit(data: LoginFormData){
     await login(data);
   }
+
+  
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.push("/");
+    }
+  }, [user, isLoading, router]);
 
   return (
     <div className="min-h-screen bg-main flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
@@ -44,7 +55,6 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          
           
           <div>
             <label className="block text-xs font-bold text-brand-dark uppercase tracking-wider mb-2">
@@ -73,7 +83,6 @@ export default function LoginPage() {
             )}
           </div>
 
-          
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-xs font-bold text-brand-dark uppercase tracking-wider">
@@ -98,7 +107,6 @@ export default function LoginPage() {
                 }`}
               />
             </div>
-            {/* عرض رسالة خطأ كلمة المرور */}
             {errors.password && (
               <p className="text-xs text-red-500 mt-1.5 font-medium">
                 {errors.password.message}
@@ -106,10 +114,9 @@ export default function LoginPage() {
             )}
           </div>
 
-          
           <Button 
             type="submit" 
-             isLoading={isPending} 
+            isLoading={isPending} 
             variant="primary" 
             className="w-full py-4 mt-2"
           >

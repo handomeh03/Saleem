@@ -55,5 +55,7 @@ export function useGetDoctorRecords({ page, searchQuery, limit = 10 }: UseGetDoc
                 throw err;
             }
         },
+         staleTime: 60000,
+        placeholderData: (previousData) => previousData,
     });
 }

@@ -49,5 +49,7 @@ export function useGetDoctors({ page, searchQuery, limit = 10 }: UseGetDoctorsPr
                 throw err;
             }
         },
+         staleTime: 60000,
+        placeholderData: (previousData) => previousData,
     });
 }
