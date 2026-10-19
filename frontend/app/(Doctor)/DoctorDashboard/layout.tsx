@@ -4,7 +4,8 @@ import React from 'react';
 import { 
     Stethoscope,      
     UserPlus,         
-    CalendarClock,   
+    CalendarClock,  
+    Home, 
     ClipboardList, 
 } from 'lucide-react';
 
@@ -16,6 +17,11 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     
     const doctorMenu: MenuItem[] = [
+         {
+            label: 'Home',
+            href: '/',
+            icon: Home
+        },
                { 
             label: 'Doctor Records', 
             href: '/DoctorDashboard/doctor-recourds', 

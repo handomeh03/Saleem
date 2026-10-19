@@ -17,7 +17,6 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('Home');
 
-  
   const { user, isLoading, logout } = useAuth();
 
   const handleScrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, name: string, href: string) => {
@@ -40,7 +39,6 @@ export default function Navbar() {
     }
   };
 
-  
   const dashboardHref = user?.role?.roleName === "admin" ? "/admin-dashboard/doctors" : "/DoctorDashboard/doctor-recourds";
 
   return (
@@ -115,7 +113,6 @@ export default function Navbar() {
             Book Appointment
           </Link>
 
-          
           {isLoading ? (
             <div className="w-24 h-10 flex items-center justify-center bg-brand-primary/10 rounded-xl">
               <Loader2 className="w-5 h-5 text-brand-primary animate-spin" />
@@ -176,9 +173,19 @@ export default function Navbar() {
             Book Appointment
           </Link>
 
-          
+          {/* ظهور زر الـ Dashboard في قائمة الموبايل في حال وجود المستخدم */}
+          {!isLoading && user && (
+            <Link 
+              href={dashboardHref}
+              onClick={() => setIsOpen(false)}
+              className="bg-main border border-subtle text-brand-dark text-center py-3 rounded-xl font-medium shadow-2xs hover:bg-subtle/50 transition"
+            >
+              Dashboard
+            </Link>
+          )}
+
           {isLoading ? (
-            <div className="mt-4 py-3 flex items-center justify-center bg-brand-primary/10 rounded-xl">
+            <div className="mt-2 py-3 flex items-center justify-center bg-brand-primary/10 rounded-xl">
               <Loader2 className="w-5 h-5 text-brand-primary animate-spin" />
             </div>
           ) : user ? (
@@ -187,7 +194,7 @@ export default function Navbar() {
                 setIsOpen(false);
                 logout();
               }}
-              className="mt-4 bg-red-500 text-white text-center py-3 rounded-xl font-medium shadow-md shadow-red-500/20 cursor-pointer"
+              className="mt-2 bg-red-500 text-white text-center py-3 rounded-xl font-medium shadow-md shadow-red-500/20 cursor-pointer"
             >
               Logout
             </button>
@@ -195,7 +202,7 @@ export default function Navbar() {
             <Link 
               href="/login" 
               onClick={() => setIsOpen(false)}
-              className="mt-4 bg-brand-primary text-white text-center py-3 rounded-xl font-medium shadow-md shadow-sky-500/20"
+              className="mt-2 bg-brand-primary text-white text-center py-3 rounded-xl font-medium shadow-md shadow-sky-500/20"
             >
               Login
             </Link>
