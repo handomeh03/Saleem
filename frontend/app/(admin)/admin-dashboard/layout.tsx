@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
-import { 
-    Stethoscope,      
-    UserPlus,         
-    CalendarClock,   
+import {
+    Stethoscope,
+    UserPlus,
+    CalendarClock,
     ClipboardList,
+    Home
 } from 'lucide-react';
 
 import Sidebar, { MenuItem } from '@/components/Sidebar';
@@ -14,27 +15,32 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-    
+
     const adminMenu: MenuItem[] = [
-        { 
-            label: 'Doctors', 
+        {
+            label: 'Home',
+            href: '/',
+            icon: Home
+        },
+        {
+            label: 'Doctors',
             href: '/admin-dashboard/doctors',
-            icon: Stethoscope    
+            icon: Stethoscope
         },
-        { 
-            label: 'Invite Doctor', 
-            href: '/admin-dashboard/create-doctor', 
-            icon: UserPlus       
+        {
+            label: 'Invite Doctor',
+            href: '/admin-dashboard/create-doctor',
+            icon: UserPlus
         },
-        { 
-            label: 'Create Schedule', 
-            href: '/admin-dashboard/create-doctor-schedule', 
-            icon: CalendarClock  
+        {
+            label: 'Create Schedule',
+            href: '/admin-dashboard/create-doctor-schedule',
+            icon: CalendarClock
         },
-        { 
-            label: 'Doctor Records', 
-            href: '/admin-dashboard/doctor-recourds', 
-            icon: ClipboardList  
+        {
+            label: 'Doctor Records',
+            href: '/admin-dashboard/doctor-recourds',
+            icon: ClipboardList
         },
     ];
 
@@ -45,15 +51,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     };
 
     return (
-        
+
         <ProtectedRoute allowedRoles={['admin']} redirectTo="/">
             <div className="flex flex-col lg:flex-row min-h-screen bg-main w-full overflow-x-hidden">
-                
+
                 {/* Sidebar */}
                 <Sidebar
-                    roleTitle="Admin Portal" 
-                    menuItems={adminMenu} 
-                    onLogout={handleLogout} 
+                    roleTitle="Admin Portal"
+                    menuItems={adminMenu}
+                    onLogout={handleLogout}
                 />
 
                 {/* Main Content */}
