@@ -18,7 +18,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
     {
       name: 'global',
       ttl: 60000, // one minute 
-      limit: 200,
+      limit: 300,
     },
     {
       name: 'login',

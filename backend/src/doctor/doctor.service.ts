@@ -4,6 +4,7 @@ import { GetDoctorsDto } from './dto/GetDoctors.dto';
 import { Prisma } from '@prisma/client';
 import { CreateDoctorScheduleDto } from './dto/CreateDoctorSchedule.dto';
 import { EditDailyAvailabilityDto } from './dto/EditDailyAvability.dto';
+import { GetAllScheduleDto } from './dto/GetAllSchedule.dto';
 
 
 
@@ -12,6 +13,74 @@ export class DoctorService {
 
   constructor(private readonly database:DatabaseService){}
 
+  async GetAllSchedule(doctorId: number, dto: GetAllScheduleDto) {
+  const { search, page = 1, limit = 5 } = dto;
+  const skip = (page - 1) * limit;
+
+  try {
+   
+    const where: Prisma.DoctorScheduleWhereInput = {
+      doctorId: Number(doctorId),
+    };
+
+    if (search && search.trim() !== '') {
+      const cleanSearch = search.trim();
+      
+     
+      where.daily_availability = {
+        some: {
+          OR: [
+            { date: { contains: cleanSearch, mode: 'insensitive' } },
+            { start_time: { contains: cleanSearch, mode: 'insensitive' } },
+            { end_time: { contains: cleanSearch, mode: 'insensitive' } },
+          ],
+        },
+      };
+    }
+
+    const [schedules, totalCount] = await Promise.all([
+      this.database.doctorSchedule.findMany({
+        where,
+        skip,
+        take: Number(limit),
+        include: {
+          daily_availability: true, 
+          doctor: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          start_date: 'desc', 
+        },
+      }),
+      this.database.doctorSchedule.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      data: schedules,
+      totalCount,
+      currentPage: page,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    };
+
+  } catch (error) {
+    if(error instanceof HttpException){
+      throw error;
+    }
+    throw new InternalServerErrorException('An error occurred while fetching doctor schedules');
+  }
+}
  async GetDoctors(dto: GetDoctorsDto) {
   const { search, page = 1, limit = 5 } = dto;
   const skip = (page - 1) * limit;
@@ -41,7 +110,7 @@ export class DoctorService {
       this.database.user.findMany({
         where,
         skip,
-        take: limit,
+        take: Number(limit),
         select: {
           id: true,
           name: true,
@@ -77,6 +146,7 @@ export class DoctorService {
     };
 
   } catch (error) {
+    console.log(error);
     throw new InternalServerErrorException('An error occurred while fetching doctors');
   }
 }

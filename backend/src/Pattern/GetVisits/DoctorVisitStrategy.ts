@@ -20,7 +20,7 @@ export class DoctorAppointmentStrategy implements IVisitFetchStratgy {
 
         const where: any = {
             doctorId: userId,
-            status:"COMPLETED"
+            
         };
 
         if (year && month) {
