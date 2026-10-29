@@ -166,14 +166,14 @@ export default function Navbar() {
           })}
 
           <Link 
-            href="/appointment" 
+            href="/Doctors"
             onClick={() => setIsOpen(false)}
             className="mt-4 bg-brand-primary text-white text-center py-3 rounded-xl font-medium shadow-md shadow-sky-500/20"
           >
             Book Appointment
           </Link>
 
-          {/* ظهور زر الـ Dashboard في قائمة الموبايل في حال وجود المستخدم */}
+          
           {!isLoading && user && (
             <Link 
               href={dashboardHref}
