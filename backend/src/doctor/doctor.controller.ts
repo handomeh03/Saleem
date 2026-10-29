@@ -38,7 +38,7 @@ export class DoctorController {
   return await this.doctorService.GetDoctors(dto)
  }
 
- // get all visistors for doctor and admin 
+ // get all Recourds for doctor and admin 
  @Roles("admin","doctor")
  @UseGuards(RolesGuard)
  @Throttle({ Search: { limit: 300, ttl: 60000 } })

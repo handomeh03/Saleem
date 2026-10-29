@@ -32,6 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href: '/DoctorDashboard/doctor-schedules', 
             icon: ClipboardList  
         },
+        
     ];
 
     const { logout } = useAuth();
